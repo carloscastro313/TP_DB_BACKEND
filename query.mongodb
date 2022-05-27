@@ -1,0 +1,321 @@
+
+use('tp');
+
+// db.createCollection('ticketera');
+
+// /**
+//   nombre
+//   apellido
+//   locacion
+//     provincia
+//     localidad
+//     calle
+//     postal
+//     coordenadas
+//   plan: normal, SuperPack1, SuperPackFull.
+//   reclamo
+//     fecha
+//     solicionado: true | false.
+//     tipo: desperfecto, cambio de plan, dar de baja, dar de alta.
+//     derivaciones: array
+//       area: atencion al cliente, servicio tecnico.
+//       estado: resuelto, derivado.
+//       cordenadas: x y.
+//  */
+
+
+// db.ticketera.insertMany([
+//   {
+//     nombre: "Juan",
+//     apellido: "Lopez",
+//     empleado: true,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Avellaneda",
+//       calle: "Beruti 70",
+//       postal: "B1870",
+//       coordenadas: [-34.661984, -58.367192]
+//     },
+//     plan: "normal",
+//     reclamo:{
+//       fecha: new Date("2022-03-18T16:30:00Z"),
+//       tipo: "cambio de plan",
+//       detalle: "cambio a plan normal",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "atencion al cliente",
+//           coordenadas: [-34.661748, -58.365752],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Maria",
+//     apellido: "Montenegro",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "San Jose",
+//       calle: "Jujuy 677",
+//       postal: "B1844",
+//       coordenadas: [-34.766451, -58.356428]
+//     },
+//     plan: "SuperPackFull",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T13:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "conversor dañado",
+//       resuelto: false,
+//       derivaciones:[
+//         {
+//           area: "atencion al cliente",
+//           coordenadas: [-34.661748, -58.365752],
+//           estado: "derivado"
+//         },
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.761653, -58.401997],
+//           estado: "pendiente"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Jose",
+//     apellido: "Castro",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Lanus",
+//       calle: "Ministro Brin 2850",
+//       postal: "B1826",
+//       coordenadas: [-34.703999, -58.395866]
+//     },
+//     plan: "SuperPackFull",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T14:00:00Z"),
+//       tipo: "dar de alta",
+//       detalle: "Contratar servicio - SuperPackFull",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "atencion al cliente",
+//           coordenadas: [-34.661748, -58.365752],
+//           estado: "derivado"
+//         },
+//         {
+//           area: "servicio de instalacion",
+//           coordenadas: [-34.761653, -58.401997],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Tomas",
+//     apellido: "Garcia",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Avellaneda",
+//       calle: "Gral. Arenales 300",
+//       postal: "B1870",
+//       coordenadas: [-34.667072, -58.362179]
+//     },
+//     plan: "SuperPackFull",
+//     reclamo:{
+//       fecha: new Date("2022-03-21T13:00:00Z"),
+//       tipo: "cambio de plan",
+//       detalle: "Contratar servicio - normal",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "atencion al cliente",
+//           coordenadas: [-34.661748, -58.365752],
+//           estado: "derivado"
+//         },
+//         {
+//           area: "atencion comercial",
+//           coordenadas: [-34.706775, -58.391842],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Emanuel",
+//     apellido: "Aguilar",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Lanús",
+//       calle: "Concejal H. Noya 1545",
+//       postal: "B1824",
+//       coordenadas: [-34.692591, -58.397689]
+//     },
+//     plan: "SuperPackFull",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T14:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "Reparacion de cableado",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.706775, -58.391842],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Elena",
+//     apellido: "Aguirre",
+//     empleado: true,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Avellaneda",
+//       calle: "French 398",
+//       postal: "B1870",
+//       coordenadas: [-34.658296, -58.361679]
+//     },
+//     plan: "normal",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T15:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "Reparacion de cableado",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.706775, -58.391842],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Julian",
+//     apellido: "Lopez",
+//     empleado: true,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Avellaneda",
+//       calle: "Juan Bautista Palaá 401",
+//       postal: "B1870",
+//       coordenadas: [-34.662291, -58.370360]
+//     },
+//     plan: "normal",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T17:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "conversor dañado",
+//       resuelto: false,
+//       derivaciones:[
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.706775, -58.391842],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Christian",
+//     apellido: "Mendez",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Temperley",
+//       calle: "España 855",
+//       postal: "B1832",
+//       coordenadas: [-34.770682, -58.400415]
+//     },
+//     plan: "normal",
+//     reclamo:{
+//       fecha: new Date("2022-03-20T13:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "Reparacion de cableado",
+//       resuelto: false,
+//       derivaciones:[
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.761653, -58.401997],
+//           estado: "pendiente"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Martin",
+//     apellido: "Mendez",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: " Lomas de Zamora",
+//       calle: "Manuel Acevedo 350",
+//       postal: "B1832",
+//       coordenadas: [-34.756505, -58.400324]
+//     },
+//     plan: "normal",
+//     reclamo:{
+//       fecha: new Date("2022-03-19T11:00:00Z"),
+//       tipo: "desperfecto",
+//       detalle: "Reparacion de cableado",
+//       resuelto: false,
+//       derivaciones:[
+//         {
+//           area: "servicio tecnico",
+//           coordenadas: [-34.761653, -58.401997],
+//           estado: "pendiente"
+//         }
+//       ]
+//     },
+//   },
+//   {
+//     nombre: "Julian",
+//     apellido: "Paz",
+//     empleado: false,
+//     locacion:{
+//       provincia: "Buenos Aires",
+//       localidad: "Avellaneda",
+//       calle: "Juan José Castelli 170",
+//       postal: "B1870",
+//       coordenadas: [-34.664273, -58.358142]
+//     },
+//     plan: "SuperPackFull",
+//     reclamo:{
+//       fecha: new Date("2022-03-20T14:00:00Z"),
+//       tipo: "dar de baja",
+//       detalle: "Dar de baja el servicio",
+//       resuelto: true,
+//       derivaciones:[
+//         {
+//           area: "atencion al cliente",
+//           coordenadas: [-34.661748, -58.365752],
+//           estado: "solucionado"
+//         }
+//       ]
+//     },
+//   },
+// ])
+
+db.ticketera.aggregate([{ $match: { "reclamo.tipo": "desperfecto" } },
+{
+          $group: {
+            _id: "$locacion.localidad",
+            reclamo: {
+                $push:{
+                fecha: "$reclamo.fecha",
+                detalle: "$reclamo.detalle",
+                locacion: "locacion",
+
+                }
+            }
+          },
+        },
+        ]);
+
+// db.ticketera.find();
