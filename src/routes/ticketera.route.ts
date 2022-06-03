@@ -11,6 +11,9 @@ import {
   getDesperfectosPorZonas,
   mayorTicketsPorArea,
   ticketsSinResolver,
+  getCoberturaLanus,
+  getUsuarioAvellaneda,
+  getSinCobertura,
 } from "../controller/ticketera.controller";
 
 const router = Router();
@@ -26,5 +29,7 @@ router.get("/atencionPorZona", getAtencionPorZona);
 router.get("/mayorAtendidos", mayorTicketsPorArea);
 router.get("/ticketsSinResolver", ticketsSinResolver);
 router.get("/atencionPorTipo", getAtencionPorTipo);
-
+router.get("/coberturaLanus", getCoberturaLanus);
+router.get("/usuarioAvellaneda", getUsuarioAvellaneda);
+router.get("/sinCobertura", getSinCobertura);
 export default router;

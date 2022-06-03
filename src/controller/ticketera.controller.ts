@@ -1,7 +1,7 @@
 import { getInstance } from "../models/db.model";
 
 import type { Request, Response } from "express";
-import { Connection } from "mongoose";
+import mongo, { Connection } from "mongoose";
 
 export async function getAllUsuarios(req: Request, res: Response) {
   try {
@@ -547,6 +547,136 @@ export async function getAtencionPorTipo(req: Request, res: Response) {
           },
         },
       ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getCoberturaLanus(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const [servicio] = await db
+      .collection("area")
+      .find({ _id: new mongo.Types.ObjectId("6298c0383f1c21a9ab9c4d07") })
+      .limit(1)
+      .toArray();
+
+    if (!servicio) {
+      throw new Error("No existe area");
+    }
+
+    const tickets = await db
+      .collection("usuario")
+      .find(
+        {
+          "location.geo": {
+            $geoWithin: {
+              $geometry: servicio.cobertura,
+            },
+          },
+        },
+        {
+          projection: {
+            plan: 0,
+          },
+        }
+      )
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getUsuarioAvellaneda(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("usuario")
+      .find({
+        "location.geo": {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [-58.36534023284912, -34.66254620376524],
+            },
+            $minDistance: 0,
+            $maxDistance: 940,
+          },
+        },
+      })
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getSinCobertura(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const [lomas, lanus] = await Promise.all([
+      db
+        .collection("area")
+        .findOne({ _id: new mongo.Types.ObjectId("6298c0383f1c21a9ab9c4d06") }),
+      db
+        .collection("area")
+        .findOne({ _id: new mongo.Types.ObjectId("6298c0383f1c21a9ab9c4d07") }),
+    ]);
+
+    if (!lomas || !lanus) {
+      throw new Error("No existe area");
+    }
+
+    const tickets = await db
+      .collection("usuario")
+      .find({
+        $nor: [
+          {
+            "location.geo": {
+              $geoWithin: {
+                $geometry: lomas.cobertura,
+              },
+            },
+          },
+          {
+            "location.geo": {
+              $geoWithin: {
+                $geometry: lanus.cobertura,
+              },
+            },
+          },
+        ],
+      })
       .toArray();
 
     res.json({
