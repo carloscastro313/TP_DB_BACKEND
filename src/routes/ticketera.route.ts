@@ -15,6 +15,9 @@ import {
   getUsuarioAvellaneda,
   getSinCobertura,
   getReclamosMarzo,
+  getReclamosSinResolver,
+  getReclamosDetalleST,
+  getDetalleQuery,
 } from "../controller/ticketera.controller";
 
 const router = Router();
@@ -34,5 +37,8 @@ router.get("/coberturaLanus", getCoberturaLanus);
 router.get("/usuarioAvellaneda", getUsuarioAvellaneda);
 router.get("/sinCobertura", getSinCobertura);
 router.get("/reclamosMarzo", getReclamosMarzo);
+router.get("/reclamosSinResolver", getReclamosSinResolver);
+router.get("/reclamosConversorExterno", getReclamosDetalleST);
+router.get("/reclamos/:detalle", getDetalleQuery);
 
 export default router;

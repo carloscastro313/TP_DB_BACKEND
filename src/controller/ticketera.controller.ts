@@ -692,33 +692,122 @@ export async function getSinCobertura(req: Request, res: Response) {
   }
 }
 
-export async function getReclamosMarzo(req:Request, res: Response) {
+export async function getReclamosMarzo(req: Request, res: Response) {
   try {
     const db: Connection = getInstance();
 
-    const tickets = await db.collection("reclamos").find({
-      $and:[
-        {
-          fecha_inicio:{
-            $gte: new Date(2022,3,1)
-          }
-        },
-        {
-          fecha_inicio:{
-            $lt: new Date(2022,3,31)
-          }
-        }
-      ]
-    }).toArray();
+    const tickets = await db
+      .collection("reclamos")
+      .find({
+        $and: [
+          {
+            fecha_inicio: {
+              $gte: new Date(2022, 3, 1),
+            },
+          },
+          {
+            fecha_inicio: {
+              $lt: new Date(2022, 3, 31),
+            },
+          },
+        ],
+      })
+      .toArray();
 
     res.json({
       ok: true,
-      tickets
-    })
+      tickets,
+    });
   } catch (error) {
     res.status(500).send({
       ok: false,
-      error
-    })
+      error,
+    });
+  }
+}
+
+export async function getReclamosSinResolver(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .find({
+        "resolucion.solucionado": {
+          $eq: false,
+        },
+      })
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getReclamosDetalleST(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .find({
+        $or: [
+          {
+            detalle: {
+              $eq: "Cambio de conversor",
+            },
+          },
+          {
+            detalle: {
+              $eq: "Reparacion de instalacion externa",
+            },
+          },
+        ],
+      })
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getDetalleQuery(req: Request, res: Response) {
+  try {
+    const { detalle } = req.params;
+
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .find({
+        $text: {
+          $search: detalle,
+        },
+      })
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
   }
 }
