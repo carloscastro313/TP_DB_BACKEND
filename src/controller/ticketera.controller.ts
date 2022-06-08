@@ -691,3 +691,34 @@ export async function getSinCobertura(req: Request, res: Response) {
     });
   }
 }
+
+export async function getReclamosMarzo(req:Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db.collection("reclamos").find({
+      $and:[
+        {
+          fecha_inicio:{
+            $gte: new Date(2022,3,1)
+          }
+        },
+        {
+          fecha_inicio:{
+            $lt: new Date(2022,3,31)
+          }
+        }
+      ]
+    }).toArray();
+
+    res.json({
+      ok: true,
+      tickets
+    })
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error
+    })
+  }
+}
