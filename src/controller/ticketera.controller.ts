@@ -811,3 +811,440 @@ export async function getDetalleQuery(req: Request, res: Response) {
     });
   }
 }
+
+export async function getCantidadDesperfectos(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        { $match: { tipo: "Servicio tecnico" } },
+        {
+          $group: {
+            _id: "$tipo",
+            cantidad: {
+              $sum: 1,
+            },
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getConcurrenciaDesperfecto(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        { $match: { tipo: "Servicio tecnico" } },
+        {
+          $group: {
+            _id: null,
+            concurrencia: {
+              $avg: "$fecha_inicio",
+            },
+          },
+        },
+        {
+          $project: {
+            concurrencia: { $divide: ["$concurrencia", 1000 * 60 * 60 * 24] },
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getMayorZonaDesperfecto(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        { $match: { tipo: "Servicio tecnico" } },
+        {
+          $lookup: {
+            from: "usuario",
+            localField: "usuario",
+            foreignField: "_id",
+            as: "usuario",
+          },
+        },
+        {
+          $group: {
+            _id: "$usuario.location.localidad",
+            cantidad: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            cantidad: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getReclamosEmpleados(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        {
+          $lookup: {
+            from: "usuario",
+            localField: "usuario",
+            foreignField: "_id",
+            as: "usuario",
+          },
+        },
+        {
+          $unwind: "$usuario",
+        },
+        {
+          $match: {
+            "usuario.tipo": "empleado",
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getClienteMayorTickets(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        {
+          $lookup: {
+            from: "usuario",
+            localField: "usuario",
+            foreignField: "_id",
+            as: "usuario",
+          },
+        },
+        {
+          $unwind: "$usuario",
+        },
+        {
+          $group: {
+            _id: "$usuario._id",
+            usuario: {
+              $first: "$usuario",
+            },
+            cantidad: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            cantidad: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getEmpleadosPorCantidadPlanes(
+  req: Request,
+  res: Response
+) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        {
+          $lookup: {
+            from: "usuario",
+            localField: "usuario",
+            foreignField: "_id",
+            as: "usuario",
+          },
+        },
+        {
+          $unwind: "$usuario",
+        },
+        {
+          $match: {
+            $and: [
+              { "usuario.tipo": "empleado" },
+              {
+                $expr: {
+                  $gte: [
+                    {
+                      $size: "$usuario.plan",
+                    },
+                    2,
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getEmpleadoMayorResolucion(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        {
+          $match: {
+            "resolucion.solucionado": true,
+          },
+        },
+        {
+          $lookup: {
+            from: "usuario",
+            localField: "resolucion.empleado",
+            foreignField: "_id",
+            as: "resolucion.empleado",
+          },
+        },
+        {
+          $unwind: "$resolucion.empleado",
+        },
+        {
+          $group: {
+            _id: "$resolucion.empleado._id",
+            empleado: {
+              $first: "$resolucion.empleado",
+            },
+            cantidad: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            cantidad: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getHoraMasOcupada(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("reclamos")
+      .aggregate([
+        {
+          $addFields: {
+            fecha_inicio: {
+              $dateToParts: {
+                date: "$fecha_inicio",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$fecha_inicio.hour",
+            cantidad: {
+              $sum: 1,
+            },
+          },
+        },
+        {
+          $sort: {
+            cantidad: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+        {
+          $project: {
+            _id: 0,
+            hora: "$_id",
+            reclamos: "$cantidad",
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
+
+export async function getClienteMasCaro(req: Request, res: Response) {
+  try {
+    const db: Connection = getInstance();
+
+    const tickets = await db
+      .collection("usuario")
+      .aggregate([
+        {
+          $lookup: {
+            from: "plan",
+            localField: "plan",
+            foreignField: "_id",
+            as: "plan",
+          },
+        },
+        {
+          $unwind: "$plan",
+        },
+        {
+          $group: {
+            _id: "$_id",
+            nombre: {
+              $first: "$nombre",
+            },
+            apellido: {
+              $first: "$apellido",
+            },
+            location: {
+              $first: "$location",
+            },
+            precio: {
+              $sum: "$plan.precio",
+            },
+          },
+        },
+        {
+          $sort: {
+            precio: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+        {
+          $project: {
+            _id: 0,
+            usuario: {
+              nombre: "$nombre",
+              apellido: "$apellido",
+              location: "$location",
+            },
+            precioTotal: "$precio",
+          },
+        },
+      ])
+      .toArray();
+
+    res.json({
+      ok: true,
+      tickets,
+    });
+  } catch (error) {
+    res.status(500).send({
+      ok: false,
+      error,
+    });
+  }
+}
